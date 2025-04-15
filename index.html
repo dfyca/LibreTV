@@ -349,10 +349,11 @@
 
   <!-- 密码验证脚本 -->
 <script>
-  const correctPassword = "BiuXin"; // 修改为你自己的密码
+  const correctPassword = "BiuXin"; // 修改为你的密码
   const passwordKey = "access_granted";
+  const disclaimerKey = "hasSeenDisclaimer";
 
-  // 密码验证函数
+  // 检查密码输入
   function checkPassword() {
     const input = document.getElementById("accessPassword").value;
     const error = document.getElementById("passwordError");
@@ -361,48 +362,52 @@
       localStorage.setItem(passwordKey, "true");
       document.getElementById("passwordOverlay").style.display = "none";
       document.body.style.overflow = "auto";
-
-      // 如果是首次访问声明也同时隐藏
-      const disclaimerModal = document.getElementById('disclaimerModal');
-      if (disclaimerModal) {
-        disclaimerModal.style.display = 'none';
-      }
-
     } else {
       error.classList.remove("hidden");
     }
   }
 
-  // 页面加载处理
   window.addEventListener("load", () => {
     const isGranted = localStorage.getItem(passwordKey);
+    const hasSeenDisclaimer = localStorage.getItem(disclaimerKey);
 
-    if (isGranted === "true") {
-      document.getElementById("passwordOverlay").style.display = "none";
-      document.body.style.overflow = "auto";
-    } else {
-      document.getElementById("passwordOverlay").style.display = "flex";
-      document.body.style.overflow = "hidden";
-    }
+    const disclaimerModal = document.getElementById('disclaimerModal');
+    const passwordOverlay = document.getElementById('passwordOverlay');
 
-    // 声明弹窗逻辑（仅在已通过密码后才显示）
-    const hasSeenDisclaimer = localStorage.getItem('hasSeenDisclaimer');
+    // 1. 如果还没看免责声明，则先显示免责声明
     if (!hasSeenDisclaimer) {
-      const disclaimerModal = document.getElementById('disclaimerModal');
-      if (disclaimerModal) {
-        disclaimerModal.style.display = 'flex';
+      disclaimerModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
 
-        const acceptBtn = document.getElementById('acceptDisclaimerBtn');
-        if (acceptBtn) {
-          acceptBtn.addEventListener('click', function () {
-            localStorage.setItem('hasSeenDisclaimer', 'true');
-            disclaimerModal.style.display = 'none';
-          });
-        }
+      const acceptBtn = document.getElementById('acceptDisclaimerBtn');
+      if (acceptBtn) {
+        acceptBtn.addEventListener('click', function () {
+          localStorage.setItem(disclaimerKey, 'true');
+          disclaimerModal.style.display = 'none';
+
+          // 接受后再检查是否通过密码
+          if (isGranted === "true") {
+            passwordOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+          } else {
+            passwordOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+          }
+        });
+      }
+    } else {
+      // 如果已看免责声明，再判断是否输入密码
+      if (isGranted === "true") {
+        passwordOverlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      } else {
+        passwordOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
       }
     }
   });
 </script>
+
 
 </body>
 </html>
