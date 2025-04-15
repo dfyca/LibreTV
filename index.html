@@ -348,57 +348,61 @@
     <script src="js/app.js"></script>
 
   <!-- 密码验证脚本 -->
-  <script>
-    const correctPassword = "123456"; // 修改为你自己的密码
-    const passwordKey = "access_granted";
+<script>
+  const correctPassword = "BiuXin"; // 修改为你自己的密码
+  const passwordKey = "access_granted";
 
-    function checkPassword() {
-      const input = document.getElementById("accessPassword").value;
-      const error = document.getElementById("passwordError");
+  // 密码验证函数
+  function checkPassword() {
+    const input = document.getElementById("accessPassword").value;
+    const error = document.getElementById("passwordError");
 
-      if (input === correctPassword) {
-        localStorage.setItem(passwordKey, "true");
-        document.getElementById("passwordOverlay").style.display = "none";
-        document.body.style.overflow = "auto";
-      } else {
-        error.classList.remove("hidden");
+    if (input === correctPassword) {
+      localStorage.setItem(passwordKey, "true");
+      document.getElementById("passwordOverlay").style.display = "none";
+      document.body.style.overflow = "auto";
+
+      // 如果是首次访问声明也同时隐藏
+      const disclaimerModal = document.getElementById('disclaimerModal');
+      if (disclaimerModal) {
+        disclaimerModal.style.display = 'none';
       }
+
+    } else {
+      error.classList.remove("hidden");
+    }
+  }
+
+  // 页面加载处理
+  window.addEventListener("load", () => {
+    const isGranted = localStorage.getItem(passwordKey);
+
+    if (isGranted === "true") {
+      document.getElementById("passwordOverlay").style.display = "none";
+      document.body.style.overflow = "auto";
+    } else {
+      document.getElementById("passwordOverlay").style.display = "flex";
+      document.body.style.overflow = "hidden";
     }
 
-    window.addEventListener("load", () => {
-      const isGranted = localStorage.getItem(passwordKey);
-      if (isGranted === "true") {
-        document.getElementById("passwordOverlay").style.display = "none";
-        document.body.style.overflow = "auto";
-      } else {
-        document.getElementById("passwordOverlay").style.display = "flex";
-        document.body.style.overflow = "hidden";
-      }
-    });
-  </script>
+    // 声明弹窗逻辑（仅在已通过密码后才显示）
+    const hasSeenDisclaimer = localStorage.getItem('hasSeenDisclaimer');
+    if (!hasSeenDisclaimer) {
+      const disclaimerModal = document.getElementById('disclaimerModal');
+      if (disclaimerModal) {
+        disclaimerModal.style.display = 'flex';
 
-    
-    <!-- 弹窗显示脚本 -->
-    <script>
-        // 在页面加载完成后检查用户是否首次访问
-        document.addEventListener('DOMContentLoaded', function() {
-            // 检查用户是否已经看过声明
-            const hasSeenDisclaimer = localStorage.getItem('hasSeenDisclaimer');
-            
-            if (!hasSeenDisclaimer) {
-                // 显示弹窗
-                const disclaimerModal = document.getElementById('disclaimerModal');
-                disclaimerModal.style.display = 'flex';
-                
-                // 添加接受按钮事件
-                document.getElementById('acceptDisclaimerBtn').addEventListener('click', function() {
-                    // 保存用户已看过声明的状态
-                    localStorage.setItem('hasSeenDisclaimer', 'true');
-                    // 隐藏弹窗
-                    disclaimerModal.style.display = 'none';
-                });
-            }
-        });
-    </script>
+        const acceptBtn = document.getElementById('acceptDisclaimerBtn');
+        if (acceptBtn) {
+          acceptBtn.addEventListener('click', function () {
+            localStorage.setItem('hasSeenDisclaimer', 'true');
+            disclaimerModal.style.display = 'none';
+          });
+        }
+      }
+    }
+  });
+</script>
+
 </body>
 </html>
